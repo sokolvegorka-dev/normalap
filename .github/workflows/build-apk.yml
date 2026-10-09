@@ -1,4 +1,4 @@
-name: Build Android APK
+﻿name: Build Android APK
 
 on:
   workflow_dispatch:
@@ -24,7 +24,7 @@ jobs:
         run: pip install "flet[all]==0.86.5"
 
       - name: Build APK
-        run: flet build apk --yes --product "НормаЛап"
+        run: flet build apk --split-per-abi --yes --product "НормаЛап"
 
       - uses: actions/upload-artifact@v4
         with:
