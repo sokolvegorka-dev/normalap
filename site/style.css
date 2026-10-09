@@ -492,6 +492,11 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 
 .plat > div { flex: 1; }
 .plat__tag { padding: 6px 14px; border-radius: 999px; background: var(--honey); color: #4a3a10; font-weight: 900; font-size: 13px; }
 .plat__tag--later { background: rgba(255,255,255,.2); color: #fff; }
+.plat--ready { background: #fff; border: 1.5px solid #fff; color: var(--ink); box-shadow: 0 20px 40px rgba(0,0,0,.22); transition: transform .3s var(--ease), box-shadow .3s; }
+.plat--ready:hover { transform: translateY(-3px); box-shadow: 0 28px 50px rgba(0,0,0,.28); }
+.plat--ready .plat__ic { background: var(--sage-l); color: var(--sage-d); }
+.plat--ready small { color: var(--muted); }
+.plat__tag--go { background: var(--sage); color: #fff; white-space: nowrap; }
 
 /* Footer */
 .footer { background: #1f2b24; color: rgba(255,255,255,.75); padding: 56px 0 40px; }
