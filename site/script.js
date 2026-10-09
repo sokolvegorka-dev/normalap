@@ -178,12 +178,4 @@
     calc();
   }
 
-  /* ---------- Размер файла для скачивания (если открыт по http/https) ---------- */
-  var sizeEl = $("#dlSize");
-  if (sizeEl && /^https?:/.test(location.protocol)) {
-    fetch("downloads/NormaLap-Windows.zip", { method: "HEAD" }).then(function (r) {
-      var n = parseInt(r.headers.get("content-length") || "0", 10);
-      if (n > 0) sizeEl.textContent = "архив " + Math.round(n / 1048576) + " МБ";
-    }).catch(function () {});
-  }
 })();

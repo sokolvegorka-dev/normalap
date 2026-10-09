@@ -6,8 +6,10 @@
 1. Откройте https://app.netlify.com/drop
 2. Перетащите на страницу ЦЕЛУЮ папку  site  (из этой папки проекта).
    Внутри неё должны быть: index.html, style.css, script.js, img, fonts, downloads.
-3. Подождите, пока закончится загрузка (в папке есть архив ~108 МБ, это
-   может занять несколько минут).
+   В папке downloads лежат два файла приложения:
+     NormaLap-Android.apk  (75 МБ)
+     NormaLap-iOS.ipa      (44 МБ)
+3. Подождите, пока закончится загрузка.
 4. Netlify покажет адрес вида  https://случайное-имя.netlify.app  — это и есть ваш сайт.
 5. Чтобы сменить имя на красивое (например normalap.netlify.app):
    Site configuration -> Change site name.
@@ -16,12 +18,7 @@
 
 Обновление сайта: в разделе Deploys вашего сайта перетащите папку site ещё раз.
 
-Если Netlify не принимает архив из-за размера (ошибка про размер файла):
-  а) уберите из папки site\downloads файл NormaLap-Windows.zip и опубликуйте остальное;
-  б) загрузите архив отдельно (Google Drive, Яндекс Диск или GitHub Releases)
-     и скопируйте прямую ссылку на него;
-  в) в файле site\index.html найдите
-        href="downloads/NormaLap-Windows.zip"
-     и замените на вашу ссылку, затем опубликуйте папку заново.
-
 Свой домен (например normalap.ru): Domain management -> Add a domain.
+
+Код приложения хранится в ПРИВАТНОМ репозитории GitHub
+(github.com/sokolvegorka-dev/normalap), его видите только вы.
