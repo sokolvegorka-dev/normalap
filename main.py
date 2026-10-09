@@ -1720,28 +1720,6 @@ class Normalap:
         )
         suggest = self.feed_suggest_meal(pet)
 
-        def chip_btn(title, grams, meal, suggested=False):
-            return ft.GestureDetector(
-                on_tap=lambda e, g=grams, m=meal: self.log_feed(g, m),
-                content=ft.Container(
-                    ft.Text(title, size=13, weight=ft.FontWeight.W_800, color=TEXT, font_family="Nunito"),
-                    bgcolor="#D7E4D6" if suggested else CHIP,
-                    padding=ft.Padding.symmetric(horizontal=14, vertical=12),
-                    border_radius=14,
-                    border=ft.Border.all(width=1.5, color=PRIMARY if suggested else BORDER),
-                ),
-            )
-
-        quick = [
-            chip_btn(f"Утро · {morning_g} г", morning_g, "morning", suggest == "morning"),
-            chip_btn(f"День · {day_g} г", day_g, "day", suggest == "day"),
-            chip_btn(f"Вечер · {evening_g} г", evening_g, "evening", suggest == "evening"),
-        ]
-        if leftover > 0:
-            quick.append(chip_btn(f"До нормы · {leftover} г", leftover, "extra", suggest == "extra"))
-        else:
-            quick.append(chip_btn("+20 г", 20, "extra", suggest == "extra"))
-
         meal_words = {"morning": "утреннюю", "day": "дневную", "evening": "вечернюю"}
         if suggest in meal_words:
             suggest_g = {"morning": morning_g, "day": day_g, "evening": evening_g}[suggest]
@@ -1828,8 +1806,6 @@ class Normalap:
                 meal_slot("Вечер", evening, "evening", evening_g),
             ], spacing=8),
             ft.Row(week_dots, spacing=0, alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-            ft.Text("Насыпать", size=13, weight=ft.FontWeight.W_800, color=MUTED, font_family="Nunito"),
-            ft.Row(quick, wrap=True, spacing=8, run_spacing=8),
             grams_field,
             self.primary_btn("Насыпать в миску", lambda e: self.log_feed(self.feed_draft, "extra")),
             ft.Row([
