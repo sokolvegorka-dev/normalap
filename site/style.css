@@ -496,6 +496,7 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 
 .plat--ready:hover { transform: translateY(-3px); box-shadow: 0 28px 50px rgba(0,0,0,.28); }
 .plat--ready .plat__ic { background: var(--sage-l); color: var(--sage-d); }
 .plat--ready small { color: var(--muted); }
+.dl__warn--ios { max-width: 860px; margin: 22px auto 0; padding: 18px 22px; border-radius: 20px; font-size: 15px; line-height: 1.55; }
 .plat__tag--go { background: var(--sage); color: #fff; white-space: nowrap; }
 
 /* Footer */
