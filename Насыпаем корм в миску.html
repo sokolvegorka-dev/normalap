@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Насыпаем корм в миску</title>
+<style>
+:root{--bg:#f6f1ea;--fg:#2b2622;--muted:#8a7f75;--dot:#d9cfc4;--accent:#c9783a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1f1b18;--fg:#f1e9e0;--muted:#a79b90;--dot:#463e38;--accent:#e08f4f}}
+:root[data-theme="dark"]{--bg:#1f1b18;--fg:#f1e9e0;--muted:#a79b90;--dot:#463e38;--accent:#e08f4f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px}
+h1{font-size:18px;font-weight:600;margin:0}
+#label{font-size:16px;min-height:22px;color:var(--accent);font-weight:600}
+#dots{display:flex;gap:8px}
+#dots span{width:34px;height:6px;border-radius:3px;background:var(--dot);transition:background .3s}
+#dots span.done{background:var(--muted)}
+#dots span.active{background:var(--accent)}
+canvas{width:min(100%,700px);height:auto;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+button{font:inherit;padding:8px 18px;border-radius:999px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer}
+button:hover{background:var(--accent);color:#fff}
+</style>
+</head>
+<body>
+<h1>Насыпаем корм в миску</h1>
+<div id="label"></div>
+<div id="dots"><span></span><span></span><span></span><span></span></div>
+<canvas id="c"></canvas>
+<button id="pour">Насыпать</button>
+<button id="replay">↻ Заново</button>
+
+<script>
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const W = 700, H = 520, dpr = Math.min(window.devicePixelRatio || 1, 2);
+cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
+
+// геометрия миски
+const CX = 350, FLOOR_Y = 473, RIM_Y = 330, WALL_R = 14, R_BOT = 103, R_TOP = 173;
+const GROUND = FLOOR_Y + WALL_R;
+const INNER_FLOOR = FLOOR_Y - WALL_R;
+const DEPTH = INNER_FLOOR - RIM_Y;
+const COLORS = ['#a0612b', '#8c4f20', '#b87333', '#7a431a', '#c58a4a'];
+const SR = 7, DX = 14.5, DY = 12.4, N_ROWS = 10, MOUND = 6, G = 0.3, SPILL_MAX = 42;
+const FLOOR_BASE = 226, FLOOR_DX = 15;
+
+const stages = [
+  { t: 'Шаг 1 из 4 — немного на дно', rate: 0.3 },
+  { t: 'Шаг 2 из 4 — наполняем на 2/3', rate: 0.5 },
+  { t: 'Шаг 3 из 4 — миска до краёв', rate: 0.5 },
+  { t: 'Шаг 4 из 4 — лишнее сыплется мимо', rate: 0.5, over: true }
+];
+
+const rand = (a, b) => a + Math.random() * (b - a);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const labelEl = document.getElementById('label');
+const dots = [...document.querySelectorAll('#dots span')];
+
+function wallX(y) {
+  const k = clamp((FLOOR_Y - y) / (FLOOR_Y - RIM_Y), 0, 1);
+  return R_BOT + k * (R_TOP - R_BOT);
+}
+
+let pieces = [], slots = [], rowStart = [], endIdx = [], moundEnd = 0, nextSlot = 0;
+let floorPile = {}, spillSpawned = 0, spillLanded = 0;
+let stage = 0, done = 0, phase = 'idle', waitF = 0, acc = 0, frameNo = 0;
+
+function buildSlots() {
+  const rows = []; let prev = 0;
+  for (let k = 0; k < N_ROWS + MOUND; k++) {
+    const y = INNER_FLOOR - SR - k * DY;
+    let cnt;
+    if (k < N_ROWS) {
+      const hw = wallX(y) - WALL_R / 0.9 - 8;
+      cnt = Math.floor(2 * hw / DX) + 1;
+      if ((cnt % 2) !== (k % 2 === 0 ? 1 : 0)) cnt--;
+    } else cnt = prev - 3;
+    prev = cnt;
+    const row = [];
+    for (let i = 0; i < cnt; i++) row.push({ x: CX + (i - (cnt - 1) / 2) * DX + rand(-1, 1), y: y + rand(-.8, .8) });
+    for (let i = row.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [row[i], row[j]] = [row[j], row[i]]; }
+    rows.push(row);
+  }
+  slots = []; rowStart = [];
+  for (const r of rows) { rowStart.push(slots.length); slots.push(...r); }
+  rowStart.push(slots.length);
+  moundEnd = slots.length;
+  endIdx = [
+    rowStart[1] + Math.floor(rows[1].length * 0.5),
+    rowStart[6] + Math.floor(rows[6].length * 0.67),
+    moundEnd
+  ];
+}
+
+function showStage() {
+  if (done >= 4 && phase === 'idle') labelEl.textContent = 'Четыре горсти уже в миске';
+  else if (done === 0 && phase === 'idle') labelEl.textContent = 'Нажмите, чтобы насыпать';
+  else labelEl.textContent = stages[Math.min(stage, 3)].t;
+  dots.forEach((d, i) => {
+    d.className = i < done ? 'done' : (i === stage && phase !== 'idle' ? 'active' : '');
+  });
+}
+function reset() {
+  pieces = []; stage = 0; done = 0; phase = 'idle'; waitF = 0; acc = 0; nextSlot = 0;
+  spillSpawned = 0; spillLanded = 0; floorPile = { '-1': [], '1': [] };
+  buildSlots(); showStage();
+}
+function pour() {
+  if (phase !== 'idle') return;
+  if (done >= 4) {
+    labelEl.textContent = 'Четыре горсти уже в миске';
+    return;
+  }
+  stage = done;
+  phase = 'pour';
+  acc = 0;
+  waitF = 0;
+  showStage();
+}
+document.getElementById('pour').onclick = pour;
+document.getElementById('replay').onclick = reset;
+cv.addEventListener('pointerdown', pour);
+
+// запуск гранулы по параболе: из (x0,y0) со скоростью vy0 в точку (tx,ty)
+function aim(p, tx, ty) {
+  const dy = ty - p.y;
+  const t = (-p.vy + Math.sqrt(p.vy * p.vy + 2 * G * dy)) / G;
+  p.vx = (tx - p.x) / t; p.tx = tx; p.ty = ty;
+}
+function newPiece(tx, ty) {
+  const p = { x: CX + clamp((tx - CX) * 0.45 + rand(-5, 5), -42, 42), y: 52, vx: 0, vy: rand(1, 2.5),
+    r: rand(6.2, 7.2), c: COLORS[(Math.random() * COLORS.length) | 0], mode: 'fall', leg: 1, spill: false, settle: 0 };
+  aim(p, tx, ty); pieces.push(p); return p;
+}
+
+// свободное место на полу для рассыпанного корма (кучка-пирамидка с каждой стороны)
+function pickFloor(sg) {
+  const pile = floorPile[sg], cand = [];
+  for (let h = 0; h < 6; h++) {
+    for (let j = 0; j < 6 - h; j++) {
+      const key = h + ',' + j;
+      if (pile.some(q => q.key === key)) continue;
+      if (h > 0 && !(pile.some(q => q.key === (h - 1) + ',' + j && q.landed) && pile.some(q => q.key === (h - 1) + ',' + (j + 1) && q.landed))) continue;
+      cand.push({ h, j, key });
+    }
+  }
+  if (!cand.length) return null;
+  const c = cand[(Math.random() * cand.length) | 0];
+  const slot = { key: c.key, landed: false, x: CX + sg * (FLOOR_BASE + c.j * FLOOR_DX + c.h * FLOOR_DX / 2), y: GROUND - SR - c.h * DY };
+  pile.push(slot); return slot;
+}
+
+function spawnSpill() {
+  const sg = spillSpawned % 2 ? 1 : -1, fs = pickFloor(sg);
+  if (!fs) return false;
+  const capX = CX + sg * (R_TOP + 21 * 0.77), capY = RIM_Y - 21 * 0.64;
+  const p = newPiece(capX, capY);
+  p.spill = true; p.sg = sg; p.fs = fs; spillSpawned++;
+  return true;
+}
+
+function spawnOne() {
+  const st = stages[stage];
+  if (!st.over) {
+    if (nextSlot >= endIdx[stage]) return false;
+    const sl = slots[nextSlot++]; newPiece(sl.x, sl.y); return true;
+  }
+  if (spillSpawned < SPILL_MAX && spawnSpill()) return true;
+  return false;
+}
+
+function logic() {
+  frameNo++;
+  for (const p of pieces) {
+    if (p.mode === 'rest') { p.settle++; continue; }
+    p.vy += G; p.x += p.vx; p.y += p.vy;
+    if (p.vy > 0 && p.y >= p.ty) {
+      if (p.spill && p.leg === 1) {
+        // упал на край миски — перекатывается наружу к полу
+        p.leg = 2; p.x = p.tx; p.y = p.ty; p.vy = -1.5;
+        aim(p, p.fs.x, p.fs.y);
+        if (p.sg * p.vx < 0.8) p.vx = p.sg * 0.8;
+      } else {
+        p.x = p.tx; p.y = p.ty; p.mode = 'rest'; p.settle = 0;
+        if (p.spill) { p.fs.landed = true; spillLanded++; }
+      }
+    }
+  }
+  if (phase === 'pour') {
+    acc += stages[stage].rate;
+    while (acc >= 1) { acc -= 1; if (!spawnOne()) break; }
+    const st = stages[stage];
+    const finished = st.over
+      ? spillSpawned >= SPILL_MAX
+      : nextSlot >= endIdx[stage];
+    if (finished) { phase = 'wait'; waitF = 0; }
+  } else if (phase === 'wait') {
+    if (pieces.some(p => p.mode === 'fall')) { waitF = 0; return; }
+    waitF++;
+    if (waitF > 18) {
+      done = Math.min(4, done + 1);
+      phase = 'idle';
+      showStage();
+    }
+  }
+}
+
+function drawBowl() {
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#4a7fb5'; ctx.lineWidth = WALL_R * 2;
+  ctx.beginPath();
+  ctx.moveTo(CX - R_TOP, RIM_Y); ctx.lineTo(CX - R_BOT, FLOOR_Y);
+  ctx.lineTo(CX + R_BOT, FLOOR_Y); ctx.lineTo(CX + R_TOP, RIM_Y); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(CX - R_TOP - 2, RIM_Y + 2); ctx.lineTo(CX - R_BOT - 4, FLOOR_Y - 4); ctx.stroke();
+}
+
+function render() {
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#fbf4ea'); g.addColorStop(1, '#efe3d2');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#d8c3a5'; ctx.fillRect(0, GROUND, W, H - GROUND);
+  ctx.fillStyle = 'rgba(0,0,0,.12)';
+  ctx.beginPath(); ctx.ellipse(CX, GROUND + 6, 150, 7, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.4)';
+  ctx.beginPath();
+  ctx.moveTo(CX - R_TOP, RIM_Y); ctx.lineTo(CX - R_BOT, FLOOR_Y);
+  ctx.lineTo(CX + R_BOT, FLOOR_Y); ctx.lineTo(CX + R_TOP, RIM_Y); ctx.fill();
+  // метки уровня
+  ctx.setLineDash([5, 5]); ctx.strokeStyle = 'rgba(74,127,181,.45)'; ctx.lineWidth = 1;
+  ctx.font = '12px system-ui,sans-serif'; ctx.fillStyle = 'rgba(74,127,181,.9)';
+  const y23 = INNER_FLOOR - DEPTH * 2 / 3;
+  ctx.beginPath(); ctx.moveTo(CX + wallX(y23) + WALL_R + 8, y23); ctx.lineTo(CX + wallX(y23) + WALL_R + 50, y23); ctx.stroke();
+  ctx.fillText('2/3', CX + wallX(y23) + WALL_R + 54, y23 + 4);
+  ctx.beginPath(); ctx.moveTo(CX + R_TOP + WALL_R + 8, RIM_Y); ctx.lineTo(CX + R_TOP + WALL_R + 50, RIM_Y); ctx.stroke();
+  ctx.fillText('полная', CX + R_TOP + WALL_R + 54, RIM_Y + 4);
+  ctx.setLineDash([]);
+  // воронка
+  ctx.fillStyle = '#8a8f98';
+  ctx.beginPath(); ctx.moveTo(CX - 100, 0); ctx.lineTo(CX + 100, 0); ctx.lineTo(CX + 46, 44); ctx.lineTo(CX - 46, 44); ctx.fill();
+  ctx.fillStyle = '#6d727b'; ctx.fillRect(CX - 46, 40, 92, 6);
+  // корм
+  for (const p of pieces) {
+    let y = p.y;
+    if (p.mode === 'rest' && p.settle < 18) y -= 3 * Math.exp(-p.settle / 5) * Math.abs(Math.sin(p.settle * 0.6));
+    ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, y, p.r, 0, 7); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.28)';
+    ctx.beginPath(); ctx.arc(p.x - p.r * .3, y - p.r * .3, p.r * .3, 0, 7); ctx.fill();
+  }
+  drawBowl();
+}
+
+let last = 0, accT = 0;
+function frame(t) {
+  if (!last) last = t;
+  accT += Math.min(t - last, 50); last = t;
+  while (accT >= 16.667) { logic(); accT -= 16.667; }
+  render();
+  requestAnimationFrame(frame);
+}
+reset();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

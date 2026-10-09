@@ -1,0 +1,24 @@
+{
+  "scene": [
+    308,
+    270
+  ],
+  "asset": [
+    616,
+    540
+  ],
+  "well": {
+    "cx": 154.0,
+    "cy": 167.4,
+    "rx": 117.04,
+    "ry": 59.4
+  },
+  "n_pieces": 0,
+  "spills": [],
+  "pour_start": 86,
+  "pour_end": 196,
+  "empty": 0,
+  "mid": 141,
+  "full": 300,
+  "pour_seconds": 4.4
+}

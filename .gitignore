@@ -1,0 +1,11 @@
+build/
+dist/
+.flet/
+__pycache__/
+*.pyc
+*.spec
+site/downloads/*.zip
+site/downloads/*.apk
+site/downloads/*.exe
+assets/bowl/_chrome/
+assets/bowl/srcvid/

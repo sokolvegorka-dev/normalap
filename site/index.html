@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>НормаЛап — подбор корма и забота о питомце</title>
+<meta name="description" content="НормаЛап — приложение для владельцев кошек и собак: подбирает готовый корм под характеристики питомца, считает суточную норму в граммах и объясняет рекомендации. Работает без интернета.">
+<meta name="theme-color" content="#F6F3EC">
+<meta property="og:title" content="НормаЛап — корм по норме твоего питомца">
+<meta property="og:description" content="Подбор корма, расчёт суточной нормы и повседневный уход за кошкой или собакой. Бесплатно, офлайн.">
+<meta property="og:type" content="website">
+<link rel="icon" href="img/logo.png" type="image/png">
+<link rel="preload" href="fonts/Nunito.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="paw" viewBox="0 0 64 64">
+      <ellipse cx="14" cy="26" rx="6.5" ry="8.5" transform="rotate(-18 14 26)"/>
+      <ellipse cx="26" cy="15" rx="6.5" ry="9"/>
+      <ellipse cx="40" cy="15" rx="6.5" ry="9"/>
+      <ellipse cx="52" cy="26" rx="6.5" ry="8.5" transform="rotate(18 52 26)"/>
+      <path d="M32 29c-9 0-18 9-18 17 0 6 5 9 10 9 3 0 5-1 8-1s5 1 8 1c5 0 10-3 10-9 0-8-9-17-18-17z"/>
+    </symbol>
+    <symbol id="i-pet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11c-3 0-5.5 2.6-5.5 5 0 2 1.6 3 3 3 1 0 1.6-.4 2.5-.4s1.5.4 2.5.4c1.4 0 3-1 3-3 0-2.4-2.5-5-5.5-5z"/><circle cx="5.5" cy="10" r="1.6"/><circle cx="9.3" cy="5.8" r="1.6"/><circle cx="14.7" cy="5.8" r="1.6"/><circle cx="18.5" cy="10" r="1.6"/></g></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="4"/><path d="M8 9.5a4.5 4.5 0 0 1 8 0"/><path d="M12 9.6l1.6-1.8"/></g></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5.5c2.7-.9 5.3-.6 7.5 1 2.2-1.6 4.8-1.9 7.5-1v12.8c-2.7-.9-5.3-.6-7.5 1-2.2-1.6-4.8-1.9-7.5-1z"/><path d="M12 6.5V19"/></g></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="11" rx="4"/><path d="M8 10.5v4M6 12.5h4"/><circle cx="15.5" cy="11.5" r=".9" fill="currentColor"/><circle cx="17.7" cy="13.5" r=".9" fill="currentColor"/></g></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><g fill="currentColor"><circle cx="5.5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18.5" cy="12" r="1.7"/></g></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-5-5m5 5l5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-win" viewBox="0 0 24 24"><path fill="currentColor" d="M3 5.4l7.6-1v7.1H3zM11.7 4.2L21 3v8.5h-9.3zM3 12.6h7.6v7.1L3 18.6zM11.7 12.6H21V21l-9.3-1.3z"/></symbol>
+    <symbol id="i-android" viewBox="0 0 24 24"><path fill="currentColor" d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0004.5511-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.2439 13.8533 7.8508 12 7.8508s-3.5902.3931-5.1367 1.0989L4.841 5.4467a.4161.4161 0 00-.5677-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3435-4.1021-2.6892-7.5743-6.1185-9.4396"/></symbol>
+    <symbol id="i-apple" viewBox="0 0 24 24"><path fill="currentColor" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></symbol>
+    <symbol id="bowl" viewBox="0 0 48 32">
+      <path d="M3 14h42c0 9-8 16-21 16S3 23 3 14z" fill="#E07A5F"/>
+      <path d="M3 14h42" stroke="#C9644A" stroke-width="2" stroke-linecap="round"/>
+      <g fill="#8A5A3C"><circle cx="13" cy="11" r="3.2"/><circle cx="20" cy="8.5" r="3.2"/><circle cx="27" cy="8" r="3.2"/><circle cx="34" cy="10.5" r="3.2"/><circle cx="24" cy="11.5" r="3"/><circle cx="17" cy="12" r="2.6"/><circle cx="31" cy="12.2" r="2.6"/></g>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============ NAV ============ -->
+<header class="nav" id="top">
+  <div class="wrap nav__in">
+    <a href="#top" class="brand" aria-label="НормаЛап — на главную">
+      <span class="brand__logo"><svg><use href="#paw"/></svg></span>
+      <span class="brand__name">НормаЛап</span>
+    </a>
+    <nav class="nav__links" id="navLinks" aria-label="Разделы сайта">
+      <a href="#problem">Проблема</a>
+      <a href="#solution">Решение</a>
+      <a href="#how">Как это работает</a>
+      <a href="#screens">Экраны</a>
+      <a href="#pricing">Free и Pro</a>
+      <a href="#roadmap">Планы</a>
+      <a href="#download" class="nav__cta-mobile">Скачать</a>
+    </nav>
+    <a href="#download" class="btn btn--primary btn--sm nav__cta"><svg class="ic"><use href="#i-down"/></svg>Скачать</a>
+    <button class="burger" id="burger" aria-label="Открыть меню" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero__bg" aria-hidden="true">
+    <span class="blob blob--a"></span><span class="blob blob--b"></span><span class="blob blob--c"></span>
+    <svg class="float paw p1"><use href="#paw"/></svg>
+    <svg class="float paw p2"><use href="#paw"/></svg>
+    <svg class="float paw p3"><use href="#paw"/></svg>
+    <svg class="float paw p4"><use href="#paw"/></svg>
+  </div>
+  <div class="wrap hero__in">
+    <div class="hero__copy">
+      <p class="eyebrow reveal"><span class="dot"></span>Корм по норме твоего питомца</p>
+      <h1 class="reveal" style="--d:.05s">Подбор корма и&nbsp;<em>забота</em> о&nbsp;питомце</h1>
+      <p class="lead reveal" style="--d:.1s">НормаЛап помогает владельцам кошек и собак быстрее подбирать корм с учётом характеристик питомца, изучать информацию о кормах и отслеживать повседневный уход.</p>
+      <div class="hero__cta reveal" style="--d:.15s">
+        <a href="#download" class="btn btn--primary btn--lg"><svg class="ic"><use href="#i-win"/></svg>Скачать для Windows</a>
+        <a href="#how" class="btn btn--ghost btn--lg">Как это работает<svg class="ic"><use href="#i-arrow"/></svg></a>
+      </div>
+      <ul class="hero__chips reveal" style="--d:.2s">
+        <li><svg class="ic"><use href="#i-check"/></svg>Бесплатная версия</li>
+        <li><svg class="ic"><use href="#i-check"/></svg>Работает без интернета</li>
+        <li><svg class="ic"><use href="#i-check"/></svg>Российские корма</li>
+      </ul>
+    </div>
+
+    <div class="hero__visual reveal" style="--d:.1s">
+      <div class="phone phone--hero" aria-label="Экран приложения: рацион питомца">
+        <div class="phone__notch"></div>
+        <div class="phone__screen">
+          <div class="app-head"><small>НормаЛап</small><b>Рацион</b></div>
+          <div class="app-card app-card--pet">
+            <span class="avatar"><img src="img/face_cat_happy.png" alt=""></span>
+            <div><b>Мурка</b><small>кошка · 4,2 кг · стерилизована</small></div>
+          </div>
+          <div class="app-card app-card--kcal">
+            <div class="ring" style="--p:.72">
+              <svg viewBox="0 0 120 120"><circle class="ring__bg" cx="60" cy="60" r="50"/><circle class="ring__fg" cx="60" cy="60" r="50"/></svg>
+              <div class="ring__txt"><b>246</b><small>ккал в день</small></div>
+            </div>
+            <div class="macros">
+              <span><i style="--c:#668875"></i>Белок <b>22 г</b></span>
+              <span><i style="--c:#E6B655"></i>Жир <b>3 г</b></span>
+              <span><i style="--c:#E07A5F"></i>Углеводы <b>41 г</b></span>
+            </div>
+          </div>
+          <div class="app-card app-card--meals">
+            <div class="meals__title">Порции на день · 70 г</div>
+            <div class="meal"><svg class="bowl-ic"><use href="#bowl"/></svg><span>Утро</span><b>25 г</b></div>
+            <div class="meal"><svg class="bowl-ic"><use href="#bowl"/></svg><span>День</span><b>20 г</b></div>
+            <div class="meal"><svg class="bowl-ic"><use href="#bowl"/></svg><span>Вечер</span><b>25 г</b></div>
+          </div>
+        </div>
+        <div class="app-nav">
+          <span><svg><use href="#i-pet"/></svg></span>
+          <span class="on"><svg><use href="#i-scale"/></svg></span>
+          <span><svg><use href="#i-book"/></svg></span>
+          <span><svg><use href="#i-play"/></svg></span>
+          <span><svg><use href="#i-more"/></svg></span>
+        </div>
+      </div>
+
+      <div class="float-card fc-breed">
+        <img src="img/cat-24.jpg" alt="Мейн-кун">
+        <div><small>Порода</small><b>Мейн-кун</b></div>
+      </div>
+      <div class="float-card fc-ok">
+        <span class="ok"><svg class="ic"><use href="#i-check"/></svg></span>
+        <div><b>Норма рассчитана</b><small>объясняем, почему так</small></div>
+      </div>
+      <div class="float-card fc-dog">
+        <img src="img/dog-08.png" alt="Лабрадор">
+      </div>
+    </div>
+  </div>
+  <a href="#problem" class="scroll-hint" aria-label="Прокрутить вниз"><span></span></a>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="stats">
+  <div class="wrap stats__grid">
+    <div class="stat reveal"><b data-count="50">50</b><span>пород кошек и собак с описаниями</span></div>
+    <div class="stat reveal" style="--d:.06s"><b data-count="159">159</b><span>готовых кормов в базе</span></div>
+    <div class="stat reveal" style="--d:.12s"><b data-count="0" data-suffix=" ₽">0 ₽</b><span>стоит бесплатная версия</span></div>
+    <div class="stat reveal" style="--d:.18s"><b>офлайн</b><span>основные функции без интернета</span></div>
+  </div>
+</section>
+
+<!-- ============ 1. PROBLEM ============ -->
+<section class="section" id="problem">
+  <div class="wrap">
+    <header class="section__head reveal">
+      <span class="kicker">01 · Проблема</span>
+      <h2>Выбрать корм — <em>долго и сложно</em></h2>
+    </header>
+    <div class="problem">
+      <div class="problem__text reveal">
+        <p class="big">Владельцам кошек и собак сложно и долго самостоятельно выбирать корм: нужно учитывать характеристики питомца, сравнивать составы и разбираться в информации на упаковке.</p>
+        <p>Не у всех владельцев есть время и знания, чтобы уверенно оценить варианты. Индивидуальная консультация ветеринарного специалиста может быть затратной, а повседневные вопросы о кормлении возникают регулярно.</p>
+      </div>
+      <ul class="pains">
+        <li class="pain reveal"><span class="pain__n">1</span><div><b>Характеристики питомца</b><p>Порода, вес, возраст, стерилизация, активность и здоровье — всё это влияет на выбор.</p></div></li>
+        <li class="pain reveal" style="--d:.07s"><span class="pain__n">2</span><div><b>Сравнение составов</b><p>Десятки пачек на полке и длинные списки ингредиентов, в которых трудно разобраться.</p></div></li>
+        <li class="pain reveal" style="--d:.14s"><span class="pain__n">3</span><div><b>Информация на упаковке</b><p>Рекламные обещания и мелкий шрифт не отвечают на вопрос «подойдёт ли это именно моему питомцу».</p></div></li>
+      </ul>
+    </div>
+    <div class="note reveal">
+      <span class="note__ic">i</span>
+      <p><b>НормаЛап упрощает первичный поиск информации:</b> объединяет сведения о питомце и базе кормов, показывает подходящие варианты и объясняет рекомендации. Приложение не заменяет ветеринарную диагностику и назначение лечебного питания.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. SOLUTION ============ -->
+<section class="section section--tint" id="solution">
+  <div class="wrap">
+    <header class="section__head reveal">
+      <span class="kicker">02 · Решение</span>
+      <h2>Приложение, которое <em>сопоставляет</em> питомца и корма</h2>
+    </header>
+
+    <div class="solution reveal">
+      <div class="solution__one">
+        <small>Решение одним предложением</small>
+        <p>НормаЛап — приложение для владельцев кошек и собак, которое сопоставляет характеристики питомца с данными о готовых кормах, рассчитывает ориентировочную суточную норму кормления и объясняет рекомендации.</p>
+      </div>
+      <div class="solution__usp">
+        <small>УТП</small>
+        <p>НормаЛап помогает владельцам кошек и собак выбирать готовые корма российского рынка: приложение сопоставляет данные питомца с базой кормов, рассчитывает ориентировочную суточную норму и объясняет рекомендации — без необходимости самостоятельно сравнивать множество источников; основные функции доступны офлайн.</p>
+      </div>
+    </div>
+
+    <div class="features">
+      <article class="feature reveal">
+        <span class="feature__ic" style="--c:#668875"><svg><use href="#i-scale"/></svg></span>
+        <h3>Считает норму</h3>
+        <p>Рассчитывает ориентировочную суточную энергетическую потребность и рекомендуемую суточную порцию в граммах.</p>
+      </article>
+      <article class="feature reveal" style="--d:.06s">
+        <span class="feature__ic" style="--c:#E07A5F"><svg><use href="#i-check"/></svg></span>
+        <h3>Объясняет выбор</h3>
+        <p>Показывает информацию о кормах и объясняет, почему определённые варианты могут подойти питомцу.</p>
+      </article>
+      <article class="feature reveal" style="--d:.12s">
+        <span class="feature__ic" style="--c:#D4A24C"><svg><use href="#i-book"/></svg></span>
+        <h3>Знает породы</h3>
+        <p>Позволяет изучать породы кошек и собак и читать их описания.</p>
+      </article>
+      <article class="feature reveal" style="--d:.18s">
+        <span class="feature__ic" style="--c:#8E7DBE"><svg><use href="#i-pet"/></svg></span>
+        <h3>Помогает в уходе</h3>
+        <p>Помогает вести записи о весе и использовать дополнительные инструменты для повседневного ухода.</p>
+      </article>
+    </div>
+
+    <div class="devices reveal">
+      <div class="devices__ic"><svg><use href="#i-check"/></svg></div>
+      <p><b>Приложение доступно на разных устройствах и работает без подключения к интернету.</b></p>
+      <div class="devices__list"><span><svg class="ic"><use href="#i-win"/></svg>Компьютер</span><span><svg class="ic"><use href="#i-android"/></svg>Android</span><span class="soon"><svg class="ic"><use href="#i-apple"/></svg>iPhone — позже</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AUDIENCE ============ -->
+<section class="section">
+  <div class="wrap">
+    <header class="section__head reveal">
+      <span class="kicker">03 · Целевая аудитория</span>
+      <h2>Для кого <em>НормаЛап</em></h2>
+    </header>
+    <div class="audience">
+      <article class="aud reveal">
+        <img src="img/face_dog_happy.png" alt="">
+        <h3>Тем, кому сложно сравнивать</h3>
+        <p>Владельцы кошек и собак, которым сложно самостоятельно сравнивать готовые корма.</p>
+      </article>
+      <article class="aud reveal" style="--d:.07s">
+        <img src="img/face_cat_happy.png" alt="">
+        <h3>Тем, у кого мало времени</h3>
+        <p>Пользователи, у которых мало времени на изучение составов и характеристик кормов.</p>
+      </article>
+      <article class="aud reveal" style="--d:.14s">
+        <span class="aud__paw"><svg><use href="#paw"/></svg></span>
+        <h3>Тем, кто хочет порядок</h3>
+        <p>Владельцы, которые хотят ориентироваться в кормлении и удобнее отслеживать данные о питомце.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. HOW ============ -->
+<section class="section section--dark" id="how">
+  <div class="wrap">
+    <header class="section__head section__head--light reveal">
+      <span class="kicker">04 · Первый запуск и путь пользователя</span>
+      <h2>От первого экрана до <em>рекомендации</em> — пять шагов</h2>
+    </header>
+    <ol class="steps">
+      <li class="step reveal">
+        <span class="step__n">1</span>
+        <h3>Вводный экран</h3>
+        <p>«Выбирать корм бывает сложно. Важно учитывать не только упаковку и рекламу, но и потребности питомца».</p>
+      </li>
+      <li class="step reveal" style="--d:.07s">
+        <span class="step__n">2</span>
+        <h3>Принцип работы</h3>
+        <p>«Сопоставляем характеристики питомца с информацией о кормах и объясняем рекомендации».</p>
+      </li>
+      <li class="step reveal" style="--d:.14s">
+        <span class="step__n">3</span>
+        <h3>Откуда данные</h3>
+        <p>Экран с информацией: пользователь узнаёт, откуда берутся данные о кормах и как используется информация.</p>
+      </li>
+      <li class="step reveal" style="--d:.21s">
+        <span class="step__n">4</span>
+        <h3>Free или Pro</h3>
+        <p>Пользователь выбирает бесплатную версию или подписку Pro. Функции платной подписки прописаны в приложении.</p>
+      </li>
+      <li class="step reveal" style="--d:.28s">
+        <span class="step__n">5</span>
+        <h3>Профиль и рекомендации</h3>
+        <p>Создаёт профиль питомца, затем получает рекомендации и использует доступные функции приложения.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 5. PROFILE ============ -->
+<section class="section">
+  <div class="wrap profile">
+    <div class="profile__copy">
+      <header class="section__head reveal">
+        <span class="kicker">05 · Создание профиля питомца</span>
+        <h2>Всё, что нужно знать <em>о питомце</em></h2>
+      </header>
+      <p class="reveal">Несколько простых полей — и приложение понимает, что подходит именно вашему питомцу.</p>
+      <ul class="fields">
+        <li class="reveal"><span class="fld"><svg><use href="#i-pet"/></svg></span><div><b>Фото питомца</b><small>необязательно</small></div></li>
+        <li class="reveal" style="--d:.04s"><span class="fld"><svg><use href="#i-pet"/></svg></span><div><b>Вид животного</b><small>кошка или собака</small></div></li>
+        <li class="reveal" style="--d:.08s"><span class="fld"><svg><use href="#i-book"/></svg></span><div><b>Порода</b><small>не знаете — посмотрите список пород и их описания</small></div></li>
+        <li class="reveal" style="--d:.12s"><span class="fld"><svg><use href="#i-pet"/></svg></span><div><b>Пол</b></div></li>
+        <li class="reveal" style="--d:.16s"><span class="fld"><svg><use href="#i-more"/></svg></span><div><b>Возраст</b><small>в месяцах</small></div></li>
+        <li class="reveal" style="--d:.2s"><span class="fld"><svg><use href="#i-scale"/></svg></span><div><b>Текущий и целевой вес</b></div></li>
+        <li class="reveal" style="--d:.24s"><span class="fld"><svg><use href="#i-check"/></svg></span><div><b>Стерилизация / кастрация</b><small>да или нет</small></div></li>
+        <li class="reveal" style="--d:.28s"><span class="fld"><svg><use href="#i-play"/></svg></span><div><b>Уровень активности</b><small>низкий, средний или высокий</small></div></li>
+        <li class="reveal" style="--d:.32s"><span class="fld"><svg><use href="#i-check"/></svg></span><div><b>Диагнозы и особенности здоровья</b><small>если применимо</small></div></li>
+      </ul>
+    </div>
+    <div class="profile__visual reveal">
+      <div class="form-card">
+        <div class="form-card__top">
+          <span class="avatar avatar--lg"><img src="img/face_cat_happy.png" alt=""></span>
+          <div><b>Новый питомец</b><small>Шаг 1 из 1</small></div>
+        </div>
+        <div class="seg"><span class="on">Кошка</span><span>Собака</span></div>
+        <div class="input"><small>Кличка</small><b>Мурка</b></div>
+        <div class="row2">
+          <div class="input"><small>Возраст, мес.</small><b>36</b></div>
+          <div class="input"><small>Вес, кг</small><b>4,2</b></div>
+        </div>
+        <div class="seg seg--3"><span>Низкая</span><span class="on">Средняя</span><span>Высокая</span></div>
+        <label class="switch"><i class="on"></i>Стерилизована</label>
+        <div class="chips-row"><span class="chip on">Здорова</span><span class="chip">Лишний вес</span><span class="chip">Аллергия</span><span class="chip">ЖКТ</span></div>
+        <div class="btn btn--primary btn--block">Сохранить и показать рацион</div>
+      </div>
+      <img class="profile__cat" src="img/cat-23.jpg" alt="Скоттиш-фолд">
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6/7 PRICING ============ -->
+<section class="section section--tint" id="pricing">
+  <div class="wrap">
+    <header class="section__head reveal">
+      <span class="kicker">06–07 · Версии</span>
+      <h2>Бесплатная версия и <em>подписка Pro</em></h2>
+    </header>
+    <div class="plans">
+      <article class="plan reveal">
+        <div class="plan__top">
+          <span class="plan__tag">Free</span>
+          <h3>Бесплатная версия</h3>
+          <div class="price"><b>0 ₽</b><small>навсегда</small></div>
+        </div>
+        <ul>
+          <li><svg class="ic"><use href="#i-check"/></svg>Запись веса питомца каждый день</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Рекомендации по корму с расчётом КБЖУ, калорийности и ориентировочной нормы</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Игра «5 букв»</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Видео для животных</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Погода</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Справочная информация о кормах</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Список пород кошек и собак с описаниями</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Донаты</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Советы по уходу</li>
+        </ul>
+        <a href="#download" class="btn btn--ghost btn--block">Скачать бесплатно</a>
+      </article>
+
+      <article class="plan plan--pro reveal" style="--d:.1s">
+        <span class="plan__ribbon">Всё из Free и ещё</span>
+        <div class="plan__top">
+          <span class="plan__tag">Pro</span>
+          <h3>Подписка Pro</h3>
+          <div class="price"><b>299 ₽</b><small>в месяц · предварительная стоимость</small></div>
+        </div>
+        <ul>
+          <li><svg class="ic"><use href="#i-check"/></svg>Возможность добавить двух и более питомцев</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Календарь и напоминания</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Ежедневные записи о самочувствии питомца</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Дневник кормления</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Суточная норма корма в граммах и распределение порций на утро, день и вечер</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Анимация насыпания корма в миску</li>
+        </ul>
+        <a href="#download" class="btn btn--light btn--block">Попробовать в приложении</a>
+        <p class="plan__fine">Оплата подписки в приложении пока не подключена.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCREENS ============ -->
+<section class="section" id="screens">
+  <div class="wrap">
+    <header class="section__head section__head--center reveal">
+      <span class="kicker">Как выглядит</span>
+      <h2>Экраны <em>приложения</em></h2>
+      <p>Спокойные цвета, крупные цифры и понятные подсказки. Ниже — примеры экранов; цифры в них иллюстративные.</p>
+    </header>
+
+    <div class="tabs reveal" role="tablist" aria-label="Экраны приложения">
+      <button role="tab" class="tab on" data-tab="ration" aria-selected="true">Рацион</button>
+      <button role="tab" class="tab" data-tab="breeds" aria-selected="false">Породы</button>
+      <button role="tab" class="tab" data-tab="weight" aria-selected="false">Вес</button>
+      <button role="tab" class="tab" data-tab="game" aria-selected="false">5 букв</button>
+    </div>
+
+    <div class="stage reveal">
+      <div class="stage__text">
+        <div class="pane on" data-pane="ration">
+          <h3>Рацион по норме</h3>
+          <p>Суточная энергетическая потребность, белки, жиры и углеводы — и порции в граммах на утро, день и вечер. Рекомендации сопровождаются объяснениями.</p>
+          <ul class="ticks"><li>Расчёт по весу, возрасту, стерилизации и активности</li><li>Корма российского рынка с составом и анализом</li><li>Понятно, почему выбран именно этот вариант</li></ul>
+        </div>
+        <div class="pane" data-pane="breeds">
+          <h3>Породы с описаниями</h3>
+          <p>26 пород кошек и 24 породы собак. Если не знаете породу питомца — посмотрите список и описания, а затем выберите подходящую при создании профиля.</p>
+          <ul class="ticks"><li>Фото и характеристики породы</li><li>Особенности здоровья и питания</li><li>Корма, которые чаще подходят породе</li></ul>
+        </div>
+        <div class="pane" data-pane="weight">
+          <h3>Вес — каждый день</h3>
+          <p>Запись веса питомца каждый день доступна в бесплатной версии. Видно динамику и расстояние до целевого веса.</p>
+          <ul class="ticks"><li>Календарь записей</li><li>Текущий и целевой вес</li><li>Наглядная линия динамики</li></ul>
+        </div>
+        <div class="pane" data-pane="game">
+          <h3>Игра «5 букв»</h3>
+          <p>Угадайте слово из пяти букв за шесть попыток. Зелёная клетка — буква на месте, медовая — есть, но в другом месте, серая — такой буквы нет.</p>
+          <ul class="ticks"><li>Слово дня и дополнительные слова</li><li>Календарь побед и серия дней</li><li>Подходит для перерыва между делами</li></ul>
+        </div>
+      </div>
+
+      <div class="stage__phone">
+        <div class="phone phone--stage">
+          <div class="phone__notch"></div>
+          <div class="phone__screen">
+
+            <!-- ration -->
+            <div class="scr on" data-scr="ration">
+              <div class="app-head"><small>НормаЛап</small><b>Рацион</b></div>
+              <div class="app-card app-card--pet">
+                <span class="avatar"><img src="img/face_cat_happy.png" alt=""></span>
+                <div><b>Мурка</b><small>кошка · 4,2 кг · стерилизована</small></div>
+              </div>
+              <div class="app-card app-card--kcal">
+                <div class="ring" style="--p:.72"><svg viewBox="0 0 120 120"><circle class="ring__bg" cx="60" cy="60" r="50"/><circle class="ring__fg" cx="60" cy="60" r="50"/></svg><div class="ring__txt"><b>246</b><small>ккал в день</small></div></div>
+                <div class="macros"><span><i style="--c:#668875"></i>Белок <b>22 г</b></span><span><i style="--c:#E6B655"></i>Жир <b>3 г</b></span><span><i style="--c:#E07A5F"></i>Углеводы <b>41 г</b></span></div>
+              </div>
+              <div class="app-card app-card--meals">
+                <div class="meals__title">Порции на день · 70 г</div>
+                <div class="meal"><svg class="bowl-ic"><use href="#bowl"/></svg><span>Утро</span><b>25 г</b></div>
+                <div class="meal"><svg class="bowl-ic"><use href="#bowl"/></svg><span>День</span><b>20 г</b></div>
+                <div class="meal"><svg class="bowl-ic"><use href="#bowl"/></svg><span>Вечер</span><b>25 г</b></div>
+              </div>
+            </div>
+
+            <!-- breeds -->
+            <div class="scr" data-scr="breeds">
+              <div class="app-head"><small>НормаЛап</small><b>Породы</b></div>
+              <div class="seg seg--sm"><span class="on">Кошки · 26</span><span>Собаки · 24</span></div>
+              <div class="breed"><div class="breed__img"><img src="img/cat-24.jpg" alt=""></div><div><b>Мейн-кун</b><small>Крупная пушистая порода</small></div></div>
+              <div class="breed"><div class="breed__img"><img src="img/cat-23.jpg" alt=""></div><div><b>Скоттиш-фолд</b><small>Вислоухая шотландская кошка</small></div></div>
+              <div class="breed"><div class="breed__img"><img src="img/cat-19.jpg" alt=""></div><div><b>Сибирская кошка</b><small>Плотная шерсть, крепкое здоровье</small></div></div>
+              <div class="breed"><div class="breed__img"><img src="img/cat-12.jpg" alt=""></div><div><b>Русская голубая</b><small>Серо-голубая короткая шерсть</small></div></div>
+            </div>
+
+            <!-- weight -->
+            <div class="scr" data-scr="weight">
+              <div class="app-head"><small>НормаЛап</small><b>Вес</b></div>
+              <div class="app-card app-card--wt">
+                <div class="wt__top"><div><small>Сейчас</small><b>4,2 кг</b></div><div class="wt__goal"><small>Цель</small><b>4,0 кг</b></div></div>
+                <svg class="spark" viewBox="0 0 220 90" preserveAspectRatio="none">
+                  <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#668875" stop-opacity=".35"/><stop offset="1" stop-color="#668875" stop-opacity="0"/></linearGradient></defs>
+                  <path d="M0 18 L35 24 L70 32 L105 41 L140 49 L175 58 L220 64 L220 90 L0 90Z" fill="url(#sg)"/>
+                  <path class="spark__line" d="M0 18 L35 24 L70 32 L105 41 L140 49 L175 58 L220 64" fill="none" stroke="#668875" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="0" y1="70" x2="220" y2="70" stroke="#E07A5F" stroke-width="1.5" stroke-dasharray="4 5"/>
+                  <circle cx="220" cy="64" r="5" fill="#fff" stroke="#668875" stroke-width="3"/>
+                </svg>
+              </div>
+              <div class="app-card app-card--cal">
+                <div class="cal__title">Запись веса каждый день</div>
+                <div class="cal">
+                  <i>Пн</i><i>Вт</i><i>Ср</i><i>Чт</i><i>Пт</i><i>Сб</i><i>Вс</i>
+                  <s class="d">1</s><s class="d">2</s><s class="d">3</s><s class="d">4</s><s class="d">5</s><s class="d">6</s><s class="d">7</s>
+                </div>
+              </div>
+              <div class="btn btn--primary btn--block btn--sm">Записать вес</div>
+            </div>
+
+            <!-- game -->
+            <div class="scr" data-scr="game">
+              <div class="app-head"><small>НормаЛап</small><b>5 букв</b></div>
+              <div class="game">
+                <div class="grow"><s class="p">К</s><s class="m">О</s><s class="m">Ш</s><s class="h">К</s><s class="h">А</s></div>
+                <div class="grow"><s class="h">Л</s><s class="h">А</s><s class="m">М</s><s class="p">П</s><s class="h">А</s></div>
+                <div class="grow"><s class="h">Л</s><s class="h">А</s><s class="h">П</s><s class="h">К</s><s class="h">А</s></div>
+                <div class="grow"><s></s><s></s><s></s><s></s><s></s></div>
+                <div class="grow"><s></s><s></s><s></s><s></s><s></s></div>
+              </div>
+              <div class="keys">
+                <div><i>й</i><i>ц</i><i>у</i><i class="m">к</i><i>е</i><i>н</i><i>г</i><i>ш</i><i>з</i><i>х</i></div>
+                <div><i>ф</i><i>ы</i><i>в</i><i class="h">а</i><i class="h">п</i><i>р</i><i class="h">л</i><i>д</i><i>ж</i></div>
+                <div><i class="w">Ввод</i><i>я</i><i>ч</i><i>с</i><i class="m">м</i><i>и</i><i>т</i><i class="w">⌫</i></div>
+              </div>
+            </div>
+
+          </div>
+          <div class="app-nav">
+            <span><svg><use href="#i-pet"/></svg></span>
+            <span class="on"><svg><use href="#i-scale"/></svg></span>
+            <span><svg><use href="#i-book"/></svg></span>
+            <span><svg><use href="#i-play"/></svg></span>
+            <span><svg><use href="#i-more"/></svg></span>
+          </div>
+        </div>
+        <div class="stage__glow"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CALC ============ -->
+<section class="section section--tint calc-sec" id="calc">
+  <div class="wrap calc">
+    <div class="calc__copy reveal">
+      <span class="kicker">Попробуйте сами</span>
+      <h2>Прикиньте <em>суточную норму</em> прямо здесь</h2>
+      <p>Тот же принцип, что и в приложении: базовый обмен веществ по весу и коэффициент под возраст, стерилизацию и активность. Это ориентир, а не назначение — при диагнозах и особенностях здоровья обязательно проконсультируйтесь с ветеринаром.</p>
+      <img class="calc__dog" src="img/dog-12.jpg" alt="Золотистый ретривер">
+    </div>
+    <div class="calc__card reveal" id="calcCard">
+      <div class="seg" id="cSpecies"><span class="on" data-v="cat">Кошка</span><span data-v="dog">Собака</span></div>
+      <label class="rng"><div><span>Вес питомца</span><b id="cWeightOut">4,2 кг</b></div><input id="cWeight" type="range" min="1" max="60" step="0.1" value="4.2"></label>
+      <div class="seg seg--3" id="cAge"><span data-v="young">До года</span><span class="on" data-v="adult">Взрослый</span></div>
+      <div class="seg seg--3" id="cAct"><span data-v="low">Низкая</span><span class="on" data-v="medium">Средняя</span><span data-v="high">Высокая</span></div>
+      <label class="switch" id="cSter"><i class="on"></i>Стерилизован(а)</label>
+      <div class="result">
+        <div class="result__main"><small>Ориентировочная норма</small><b><span id="rKcal">246</span> <em>ккал в день</em></b></div>
+        <div class="result__grid">
+          <div><small>Сухого корма</small><b><span id="rGrams">70</span> г</b><i>при 370 ккал/100 г</i></div>
+          <div><small>Три порции</small><b><span id="rMeal">23</span> г</b><i>утро · день · вечер</i></div>
+        </div>
+        <p class="result__fine">Приложение подставляет калорийность реального корма из базы и учитывает диагнозы.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8. TECH ============ -->
+<section class="section" id="tech">
+  <div class="wrap tech">
+    <div class="tech__copy">
+      <header class="section__head reveal">
+        <span class="kicker">08 · Технология и прозрачность</span>
+        <h2>Понятно, <em>откуда</em> берутся рекомендации</h2>
+      </header>
+      <p class="reveal">Приложение использует данные профиля питомца и базу информации о готовых кормах, чтобы сопоставлять характеристики животного с доступными вариантами. Результат помогает пользователю сравнивать корма и понимать логику рекомендаций.</p>
+      <p class="reveal">В приложении предусмотрена кнопка прозрачности с информацией об источниках данных. Приложение доступно на разных устройствах и рассчитано на работу без интернета.</p>
+      <div class="tech__badges reveal">
+        <span><svg class="ic"><use href="#i-check"/></svg>Данные остаются на устройстве</span>
+        <span><svg class="ic"><use href="#i-check"/></svg>Работает офлайн</span>
+        <span><svg class="ic"><use href="#i-check"/></svg>Источники данных — в приложении</span>
+      </div>
+    </div>
+    <div class="tech__visual reveal">
+      <div class="flow">
+        <div class="flow__node"><span><svg><use href="#i-pet"/></svg></span><b>Профиль питомца</b><small>порода, вес, возраст, здоровье</small></div>
+        <div class="flow__arrow"><svg><use href="#i-arrow"/></svg></div>
+        <div class="flow__node flow__node--c"><span><svg><use href="#paw"/></svg></span><b>НормаЛап</b><small>сопоставление и расчёт</small></div>
+        <div class="flow__arrow"><svg><use href="#i-arrow"/></svg></div>
+        <div class="flow__node"><span><svg><use href="#i-book"/></svg></span><b>База кормов</b><small>159 готовых кормов</small></div>
+      </div>
+      <div class="flow__out"><svg class="ic"><use href="#i-check"/></svg>Подходящие варианты · суточная норма · объяснение, почему так</div>
+      <div class="brands" aria-label="Бренды в базе">
+        <div class="brands__track">
+          <span>AJO</span><span>AlphaPet</span><span>Award</span><span>Best Dinner</span><span>Blitz</span><span>Bowl Wow</span><span>Craftia</span><span>FLORIDA</span><span>Karmy</span><span>Mr.Buffalo</span><span>Night Hunter</span><span>Savita</span><span>Мираторг</span>
+          <span>AJO</span><span>AlphaPet</span><span>Award</span><span>Best Dinner</span><span>Blitz</span><span>Bowl Wow</span><span>Craftia</span><span>FLORIDA</span><span>Karmy</span><span>Mr.Buffalo</span><span>Night Hunter</span><span>Savita</span><span>Мираторг</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9. NOVELTY ============ -->
+<section class="section section--tint">
+  <div class="wrap">
+    <header class="section__head reveal">
+      <span class="kicker">09 · Новизна и отличительные особенности</span>
+      <h2>Чем НормаЛап <em>отличается</em></h2>
+    </header>
+    <div class="novelty">
+      <article class="nov reveal"><span class="nov__n">01</span><p>Персонализированный подбор корма с расчётом КБЖУ на основе характеристик конкретного питомца.</p></article>
+      <article class="nov reveal" style="--d:.07s"><span class="nov__n">02</span><p>Рекомендации сопровождаются объяснениями, а не только перечнем вариантов.</p></article>
+      <article class="nov reveal" style="--d:.14s"><span class="nov__n">03</span><p>Подбор корма и расчёт ориентировочной порции объединены с инструментами повседневного ухода.</p></article>
+      <article class="nov reveal" style="--d:.21s"><span class="nov__n">04</span><p>Информация о породах, кормах и профиле питомца собрана в одном приложении.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10. ROADMAP ============ -->
+<section class="section" id="roadmap">
+  <div class="wrap">
+    <header class="section__head reveal">
+      <span class="kicker">10 · Будущее развитие</span>
+      <h2>Что <em>дальше</em></h2>
+    </header>
+    <div class="roadmap">
+      <article class="rm reveal"><span class="rm__ic">🎟️</span><h3>Геймификация</h3><p>Билеты за участие в игре «5 букв», розыгрыши, виртуальный питомец и интерактивные элементы.</p></article>
+      <article class="rm reveal" style="--d:.05s"><span class="rm__ic">📷</span><h3>QR-коды на упаковках</h3><p>Быстрый просмотр информации и сопоставление продукта с критериями питомца.</p></article>
+      <article class="rm reveal" style="--d:.1s"><span class="rm__ic">🤝</span><h3>Партнёрства</h3><p>Сотрудничество с производителями кормов.</p></article>
+      <article class="rm reveal" style="--d:.15s"><span class="rm__ic">💰</span><h3>Бюджет владельца</h3><p>Учёт бюджета при подборе кормов.</p></article>
+      <article class="rm reveal" style="--d:.2s"><span class="rm__ic">📍</span><h3>Корма рядом</h3><p>Поиск кормов рядом с домом.</p></article>
+      <article class="rm reveal" style="--d:.25s"><span class="rm__ic">🔥</span><h3>Баллы и серии</h3><p>Баллы, серии активности и другие механики вовлечения для пользователей Pro.</p></article>
+      <article class="rm rm--wide reveal" style="--d:.3s"><span class="rm__ic">🩺</span><div><h3>Консультации ветеринаров</h3><p>Дополнительные консультации с ветеринарными специалистами.</p></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DOWNLOAD ============ -->
+<section class="download" id="download">
+  <div class="download__bg" aria-hidden="true">
+    <svg class="float paw d1"><use href="#paw"/></svg>
+    <svg class="float paw d2"><use href="#paw"/></svg>
+    <svg class="float paw d3"><use href="#paw"/></svg>
+  </div>
+  <div class="wrap">
+    <header class="section__head section__head--center section__head--light reveal">
+      <span class="kicker">Скачать</span>
+      <h2>Забирайте <em>НормаЛап</em></h2>
+      <p>Бесплатная версия. Данные хранятся на вашем устройстве.</p>
+    </header>
+
+    <div class="dl reveal">
+      <div class="dl__main">
+        <span class="dl__logo"><svg><use href="#paw"/></svg></span>
+        <div class="dl__info">
+          <h3>НормаЛап для Windows</h3>
+          <p>Версия 1.0.0 · Windows 10 и 11 · <span id="dlSize">архив с приложением</span></p>
+        </div>
+        <a class="btn btn--light btn--lg dl__btn" href="downloads/NormaLap-Windows.zip" download>
+          <svg class="ic"><use href="#i-down"/></svg>Скачать .zip
+        </a>
+      </div>
+      <ol class="dl__steps">
+        <li><b>Скачайте</b> архив <code>NormaLap-Windows.zip</code>.</li>
+        <li><b>Распакуйте</b> его в любую папку.</li>
+        <li><b>Запустите</b> <code>NormaLap.exe</code> — установка не нужна.</li>
+      </ol>
+      <p class="dl__warn">Windows может показать предупреждение «Защитник Windows предотвратил запуск». Это стандартная проверка для программ без цифровой подписи: нажмите «Подробнее» → «Выполнить в любом случае».</p>
+    </div>
+
+    <div class="platforms">
+      <div class="plat reveal">
+        <span class="plat__ic"><svg><use href="#i-android"/></svg></span>
+        <div><b>Android</b><small>Версия для телефона готовится — файл .apk появится здесь</small></div>
+        <span class="plat__tag">Скоро</span>
+      </div>
+      <div class="plat reveal" style="--d:.08s">
+        <span class="plat__ic"><svg><use href="#i-apple"/></svg></span>
+        <div><b>iPhone</b><small>Появится позже, после Android</small></div>
+        <span class="plat__tag plat__tag--later">Позже</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="wrap footer__in">
+    <div class="footer__brand">
+      <a href="#top" class="brand brand--light"><span class="brand__logo"><svg><use href="#paw"/></svg></span><span class="brand__name">НормаЛап</span></a>
+      <p>Корм по норме твоего питомца.<br>Концепция приложения: подбор корма и забота о питомце.</p>
+    </div>
+    <nav class="footer__nav" aria-label="Нижнее меню">
+      <a href="#problem">Проблема</a><a href="#solution">Решение</a><a href="#pricing">Free и Pro</a><a href="#tech">Прозрачность</a><a href="#roadmap">Планы</a><a href="#download">Скачать</a>
+    </nav>
+    <p class="footer__legal">НормаЛап не заменяет ветеринарную диагностику и назначение лечебного питания. Рекомендации носят справочный характер.<br>© <span id="year">2026</span> НормаЛап</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

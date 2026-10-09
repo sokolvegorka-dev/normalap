@@ -1,0 +1,5 @@
+flet>=0.86,<0.87
+flet-video==0.86.5
+certifi
+openpyxl
+pillow

@@ -1,0 +1,45 @@
+[project]
+name = "normalap"
+version = "1.0.0"
+description = "НормаЛап — подбор корма для кошек и собак"
+requires-python = ">=3.10"
+dependencies = [
+  "flet>=0.86,<0.87",
+  "flet-video==0.86.5",
+  "certifi",
+]
+
+[tool.flet]
+org = "app.normalap"
+product = "НормаЛап"
+company = "НормаЛап"
+copyright = "Copyright (C) 2026 НормаЛап"
+bundle_id = "app.normalap.app"
+permissions = ["photo_library"]
+
+[tool.flet.app]
+module = "main"
+exclude = [
+  "build",
+  ".flet",
+  "dist",
+  "site",
+  "_pack_for_site.bat",
+  "__pycache__",
+  ".git",
+  "assets/bowl/_chrome",
+  "assets/bowl/srcvid",
+  "tools_capture_pour.py",
+  "tools_pour_video.py",
+  "tools_process_pour.py",
+  "tools_build_bowl.py",
+  "build_data.py",
+  "установить_ярлык.py",
+]
+
+[tool.flet.android]
+adaptive_icon_background = "#F6F3EC"
+
+[tool.flet.splash]
+color = "#F6F3EC"
+dark_color = "#F6F3EC"
